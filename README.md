@@ -7,6 +7,17 @@ check_ipvsadm plugin for Nagios / Icinga. Checks the number of available real se
 * bash
 * grep
 
+## Installation
+1. Copy the script to /usr/local/sbin/check_ipvsadm
+1. Use chown and chmod to ensure the test user can execute it.
+1. Give the test user sudo access:
+```
+visudo 
+```
+```
+icinga ALL=(root) NOPASSWD: /usr/local/sbin/check_ipvsadm
+``` 
+
 ## Usage
 ```
 check_ipvsadm -v <vip:port> [-t|-u] [-w <number>] [-c <number>]

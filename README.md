@@ -19,4 +19,4 @@ check_ipvsadm checks the number of available real servers for a specified IPVS v
 -c:     Critical threshold for number of real servers (Defaults to 0).
 -h:     This help.
 
-Usage example: check_ipvsadm -v 192.168.0.1:80 -t -w1 -c0```
+Usage example: check_ipvsadm -v 192.168.0.1:80 -t -w1 -c0

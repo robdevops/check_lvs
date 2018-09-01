@@ -22,14 +22,14 @@ Usage example: check_ipvsadm -v 192.168.0.1:80 -t -w1 -c0
 
 ### Example output
 ```
-sudo /usr/local/sbin/check_ipvsadm -v 172.16.253.10:3306 -t -w1 -c0
+sudo /usr/local/sbin/check_ipvsadm -v 192.168.0.1:80 -t -w1 -c0
 OK: 2 up.
 
 echo $?
 0
 ```
 ```
-sudo /usr/local/sbin/check_ipvsadm -v 172.16.253.10:3306 -t -w2 -c0
+sudo /usr/local/sbin/check_ipvsadm -v 192.168.0.1:80 -t -w2 -c0
 WARNING: 2 up.
 
 echo $?
@@ -37,7 +37,7 @@ echo $?
 
 ```
 ```
-sudo /usr/local/sbin/check_ipvsadm -v 172.16.253.10:3306 -t -w1 -c2
+sudo /usr/local/sbin/check_ipvsadm -v 192.168.0.1:80 -t -w1 -c2
 CRITICAL: 2 up.
 
 echo $?

@@ -1,8 +1,5 @@
 # check_ipvsadm
-check_ipvsadm plugin for Nagios / Icinga. Checks how many real servers are available for the specified virtual server. 
-
-## Description   
-check_ipvsadm checks the number of available real servers for a specified IPVS virtual server.
+check_ipvsadm plugin for Nagios / Icinga. Checks the number of available real servers for a specified IPVS virtual server.
 
 ## Dependencies
 * ipvsadm

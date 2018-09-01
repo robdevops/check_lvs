@@ -1,0 +1,77 @@
+#!/bin/bash
+
+#################### INPUT AND ERROR HANDLING ########################
+
+WARN=1
+CRIT=0
+PROTO='-t'
+PROTO_HUMAN=tcp
+ME="$(basename $0)"
+IPV4_AND_PORT='([0-9]{1,3}\.){3}[0-9]{1,3}:[0-9]+'
+
+error() {
+    printf "${@}\n\n" >&2
+    exit 3
+}
+
+usage() {
+    printf "Description:\t$ME checks the number of available real servers for a specified IPVS virtual server.
+
+Usage:\t$ME -v <vip:port> [-t|-u] [-w <number>] [-c <number>]
+-v:\tIPv4 address and port of virtual server (Required).
+-t:\tSpecify TCP protocol (This is the default).
+-u:\tSpecify UDP protocol.
+-w:\tWarning threshold for number of real servers (Defaults to 1).
+-c:\tCritical threshold for number of real servers (Defaults to 0).
+-h:\tThis help.
+
+Usage example: $ME -v 192.168.0.1:80 -t -w1 -c0\n\n" >&2
+    exit 3
+}
+
+[[ ! -x $(which ipvsadm) ]] && error "ipvsadm not found in PATH. Install ipvsadm and run as root."
+
+while getopts ":htuv:w:c:" opt; do
+    case $opt in
+      t  ) PROTO='-t'; PROTO_HUMAN=tcp ;;
+      u  ) PROTO='-u'; PROTO_HUMAN=udp ;;
+      v  ) PATTERN=$OPTARG ;;
+      w  ) WARN=$OPTARG ;;
+      c  ) CRIT=$OPTARG ;;
+      \? ) error "Invalid option: -$OPTARG" ;;
+      :  ) error "Option -$OPTARG requires an argument." ;;
+      h  ) usage ;;
+      *  ) usage ;;
+    esac
+done
+
+[[ -z $PATTERN ]] && usage
+echo "$PATTERN" | grep -sqwE "$IPV4_AND_PORT" || error "Bad IPv4 address or port: $PATTERN" 
+
+
+################## MAIN ###########################
+
+OUTPUT=$(ipvsadm -L -n $PROTO $PATTERN 2> /dev/null)  || error "Virtual server $PATTERN/$PROTO_HUMAN not found."
+UP+=( $(echo "$OUTPUT" | tail -n +4 | grep -woE "$IPV4_AND_PORT") ) 
+
+if [[ -z ${UP} ]]; then
+    echo "CRITICAL: 0 up."
+    exit 2
+
+elif [[ ${#UP[@]} -le $CRIT ]]; then
+    echo "CRITICAL: ${#UP[@]} up."
+    exit 2
+
+elif [[ ${#UP[@]} -le $WARN ]]; then
+    echo "WARNING: ${#UP[@]} up."
+    exit 1
+
+elif [[ ${#UP[@]} -gt $WARN ]]; then
+    echo "OK: ${#UP[@]} up."
+    exit 0
+
+else
+    error "Problem running test."
+
+fi
+

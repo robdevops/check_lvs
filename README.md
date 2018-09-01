@@ -34,7 +34,6 @@ WARNING: 2 up.
 
 echo $?
 1
-
 ```
 ```
 sudo /usr/local/sbin/check_ipvsadm -v 192.168.0.1:80 -t -w1 -c2

@@ -11,7 +11,8 @@ check_ipvsadm checks the number of available real servers for a specified IPVS v
 * grep
 
 ## Usage
-```check_ipvsadm -v <vip:port> [-t|-u] [-w <number>] [-c <number>]
+```
+check_ipvsadm -v <vip:port> [-t|-u] [-w <number>] [-c <number>]
 -v:     IPv4 address and port of virtual server (Required).
 -t:     Specify TCP protocol (This is the default).
 -u:     Specify UDP protocol.

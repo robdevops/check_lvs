@@ -7,7 +7,7 @@ WARN=1
 CRIT=0
 PROTO='-t'
 PROTO_HUMAN=tcp
-ME="$(basename $0)"
+ME="$( basename $0 )"
 
 error() {
     printf "${@}\n\n" >&2
@@ -36,7 +36,7 @@ scrape_ipv4_and_port() {
 
 }
 
-[[ ! -x $(which ipvsadm) ]] && error "ipvsadm not found in PATH. Install ipvsadm and run as root."
+[[ ! -x $( which ipvsadm ) ]] && error "ipvsadm not found in PATH. Install ipvsadm and run as root."
 
 while getopts ":htuv:w:c:" opt; do
     case $opt in
@@ -57,8 +57,8 @@ scrape_ipv4_and_port $PATTERN > /dev/null || error "Bad IPv4 address or port: $P
 
 ################## MAIN ###########################
 
-OUTPUT=$(ipvsadm -L -n $PROTO $PATTERN 2> /dev/null | tail -n +4) || error "Virtual server $PATTERN/$PROTO_HUMAN not found."
-UP=( $(scrape_ipv4_and_port $OUTPUT) ) 
+OUTPUT=$( ipvsadm -L -n $PROTO $PATTERN 2> /dev/null | tail -n +4 ) || error "Virtual server $PATTERN/$PROTO_HUMAN not found."
+UP=( $( scrape_ipv4_and_port $OUTPUT ) ) 
 
 if [[ ! -v UP ]]; then
     echo "CRITICAL: 0 up."

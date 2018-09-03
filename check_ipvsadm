@@ -52,7 +52,7 @@ while getopts ":htuv:w:c:" opt; do
     esac
 done
 
-[[ -z $PATTERN ]] && usage
+[[ ! -v PATTERN ]] && usage
 scrape_ipv4_and_port $PATTERN > /dev/null || error "Bad IPv4 address or port: $PATTERN" 
 
 ################## MAIN ###########################

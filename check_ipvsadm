@@ -43,7 +43,7 @@ while getopts ":htuv:w:c:" opt; do
     case $opt in
       t  ) PROTO='-t'; PROTO_HUMAN=tcp ;;
       u  ) PROTO='-u'; PROTO_HUMAN=udp ;;
-      v  ) PATTERN=$OPTARG ;;
+      v  ) VIRTUAL_SERVER=$OPTARG ;;
       w  ) WARN=$OPTARG ;;
       c  ) CRIT=$OPTARG ;;
       \? ) error "Invalid option: -$OPTARG" ;;
@@ -53,28 +53,31 @@ while getopts ":htuv:w:c:" opt; do
     esac
 done
 
-[[ ! -v PATTERN ]] && usage
-scrape_ipv4_and_port $PATTERN > /dev/null || error "Bad IPv4 address or port: $PATTERN" 
+[[ ! -v VIRTUAL_SERVER ]] && usage
+scrape_ipv4_and_port $VIRTUAL_SERVER > /dev/null || error "Bad IPv4 address or port: $VIRTUAL_SERVER" 
 
 ################## MAIN ###########################
 
-OUTPUT=$( ipvsadm -L -n $PROTO $PATTERN 2> /dev/null | tail -n +4 ) || error "Virtual server $PATTERN/$PROTO_HUMAN not found."
-UP=( $( scrape_ipv4_and_port $OUTPUT ) ) 
+IPVSADM_OUTPUT=$( ipvsadm -L -n $PROTO $VIRTUAL_SERVER 2> /dev/null | tail -n +4 ) || error "Virtual server $VIRTUAL_SERVER/$PROTO_HUMAN not found."
+REAL_SERVERS=( $( scrape_ipv4_and_port $IPVSADM_OUTPUT ) ) 
 
-if [[ ! -v UP ]]; then
+if [[ ! -v REAL_SERVERS ]]; then
     echo "CRITICAL: 0 real_server available"
     exit 2
+fi
 
-elif [[ ${#UP[@]} -le $CRIT ]]; then
-    echo "CRITICAL: ${#UP[@]} real_server available"
+REAL_SERVER_COUNT=${#REAL_SERVERS[@]}
+
+if [[ $REAL_SERVER_COUNT -le $CRIT ]]; then
+    echo "CRITICAL: $REAL_SERVER_COUNT real_server available"
     exit 2
 
-elif [[ ${#UP[@]} -le $WARN ]]; then
-    echo "WARNING: ${#UP[@]} real_server available"
+elif [[ $REAL_SERVER_COUNT -le $WARN ]]; then
+    echo "WARNING: $REAL_SERVER_COUNT real_server available"
     exit 1
 
-elif [[ ${#UP[@]} -gt $WARN ]]; then
-    echo "OK: ${#UP[@]} real_server available"
+elif [[ $REAL_SERVER_COUNT -gt $WARN ]]; then
+    echo "OK: $REAL_SERVER_COUNT real_server available"
     exit 0
 
 else

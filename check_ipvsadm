@@ -10,7 +10,7 @@ PROTO_HUMAN=tcp
 ME="$( basename $0 )"
 
 error() {
-    printf "${@}\n\n" >&2
+    printf "${@}\n" >&2
     exit 3
 }
 
@@ -60,12 +60,6 @@ scrape_ipv4_and_port $VIRTUAL_SERVER > /dev/null || error "Bad IPv4 address or p
 
 IPVSADM_OUTPUT=$( ipvsadm -L -n $PROTO $VIRTUAL_SERVER 2> /dev/null | tail -n +4 ) || error "Virtual server $VIRTUAL_SERVER/$PROTO_HUMAN not found."
 REAL_SERVERS=( $( scrape_ipv4_and_port $IPVSADM_OUTPUT ) ) 
-
-if [[ ! -v REAL_SERVERS ]]; then
-    echo "CRITICAL: 0 real_server available"
-    exit 2
-fi
-
 REAL_SERVER_COUNT=${#REAL_SERVERS[@]}
 
 if [[ $REAL_SERVER_COUNT -le $CRIT ]]; then

@@ -62,16 +62,20 @@ IPVSADM_OUTPUT=$( ipvsadm -L -n $PROTO $VIRTUAL_SERVER 2> /dev/null | tail -n +4
 REAL_SERVERS=( $( scrape_ipv4_and_port $IPVSADM_OUTPUT ) ) 
 REAL_SERVER_COUNT=${#REAL_SERVERS[@]}
 
-if [[ $REAL_SERVER_COUNT -le $CRIT ]]; then
-    echo "CRITICAL: $REAL_SERVER_COUNT real_server available"
+if [[ $REAL_SERVER_COUNT -eq 0 ]]; then
+    echo "CRITICAL: virtual_server \"$VIRTUAL_SERVER\" has 0 real_server available!"
+    exit 2
+        
+elif [[ $REAL_SERVER_COUNT -le $CRIT ]]; then
+    echo "CRITICAL: virtual_server \"$VIRTUAL_SERVER\" has $REAL_SERVER_COUNT real_server available: ${REAL_SERVERS[@]}"
     exit 2
 
 elif [[ $REAL_SERVER_COUNT -le $WARN ]]; then
-    echo "WARNING: $REAL_SERVER_COUNT real_server available"
+    echo "WARNING: virtual_server \"$VIRTUAL_SERVER\" has $REAL_SERVER_COUNT real_server available: ${REAL_SERVERS[@]}"
     exit 1
 
 elif [[ $REAL_SERVER_COUNT -gt $WARN ]]; then
-    echo "OK: $REAL_SERVER_COUNT real_server available"
+    echo "OK: virtual_server \"$VIRTUAL_SERVER\" has $REAL_SERVER_COUNT real_server available: ${REAL_SERVERS[@]}"
     exit 0
 
 else

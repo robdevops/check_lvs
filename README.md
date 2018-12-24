@@ -33,26 +33,26 @@ check_lvs_pool -v <vip:port> [-t|-u] [-w <number>] [-c <number>]
 -c:     Critical threshold for number of real servers (Defaults to 0).
 -h:     This help.
 
-Usage example: check_lvs_pool -v 192.168.0.80:80 -t -w1 -c0
+Usage example: check_lvs_pool -v 192.168.8.8:80 -t -w1 -c0
 ```
 
 ### Example output
 ```
-sudo /usr/local/sbin/check_lvs_pool -v 192.168.0.80:80 -t -w1 -c0
+sudo /usr/local/sbin/check_lvs_pool -v 192.168.8.8:80 -t -w1 -c0
 OK: virtual_server "192.168.0.80:80" has 2 real_server available: 192.168.10.10:80 192.168.10.20:80
 
 echo $?
 0
 ```
 ```
-sudo /usr/local/sbin/check_lvs_pool -v 192.168.0.80:80 -t -w2 -c0
+sudo /usr/local/sbin/check_lvs_pool -v 192.168.8.8:80 -t -w2 -c0
 WARNING: virtual_server "192.168.0.80:80" has 2 real_server available: 192.168.10.10:80 192.168.10.20:80
 
 echo $?
 1
 ```
 ```
-sudo /usr/local/sbin/check_lvs_pool -v 192.168.0.80:80 -t -w3 -c2
+sudo /usr/local/sbin/check_lvs_pool -v 192.168.8.8:80 -t -w3 -c2
 CRITICAL: virtual_server "192.168.0.80:80" has 2 real_server available: 192.168.10.10:80 192.168.10.20:80
 
 echo $?

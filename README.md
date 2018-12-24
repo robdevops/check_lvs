@@ -1,6 +1,7 @@
 # Table of Contents
 1. [check_lvs_pool](#check_lvs_pool)
 2. [check_lvs_virtualips](#check_lvs_virtualips)
+3. [check_ipv4_failover](#check_ipv4_failover)
 
 
 # check_lvs_pool
@@ -68,6 +69,7 @@ check_lvs_virtualips plugin for Nagios / Icinga. Warns if the host is missing an
 * iproute
 * coreutils
 * grep
+* awk
 
 ## Installation
 1. Copy the script to /usr/local/sbin/check_lvs_virtualips
@@ -112,6 +114,60 @@ echo $?
 ```
 sudo /usr/local/sbin/check_lvs_virtualips -g 192.168.0.1
 WARN: I don't own the gateway and 1 of 3 virtual_ip are active: 192.168.10.10
+
+echo $?
+1
+```
+
+# check_ipv4_failover
+check_ipv4_failover plugin for Nagios / Icinga. check_ipv4_failover warns if the host does not own the specified ipv4 address. If [-s] is specified, we treat this host as a standby, and warn if the host *does* own the address. Intended for use with LVS managers like ipvsadm and Keepalived.
+
+## Dependencies
+* bash
+* iproute
+* coreutils
+* grep
+* awk
+
+## Installation
+1. Copy the script to /usr/local/bin/check_ipv4_failover
+1. Use chown and chmod to ensure the test user can execute it.
+
+
+## Usage
+```
+-a:	IPv4 address (required).
+-s:	This host is a standby.
+-h:	This help.
+```
+
+### Example output
+```
+/usr/local/bin/check_ipv4_failover  -a 192.168.0.1
+OK: I am the primary for 192.168.10.1.
+
+
+echo $?
+0
+```
+```
+/usr/local/bin/check_ipv4_failover -a 192.168.0.1
+WARN: 192.168.0.1 is in failover. Ensure the secondary has taken over.
+
+echo $?
+1
+```
+```
+/usr/local/bin/check_ipv4_failover -a 192.168.0.1 -s
+OK: I am the standby for 192.168.0.1.
+
+
+echo $?
+1
+```
+```
+/usr/local/bin/check_ipv4_failover -a 192.168.0.1 -s
+WARN: I have taken over 192.168.158.141. Ensure the primary has released it.
 
 echo $?
 1

@@ -7,9 +7,9 @@
 check_lvs_pool plugin for Nagios / Icinga. Checks the number of available real servers for a specified IPVS virtual server. Intended or use with LVS managers like ipvsadm and Keepalived.
 
 ## Dependencies
+* bash 4.2.46 or newer
 * ipvsadm
 * coreutils
-* bash
 * grep
 
 ## Installation
@@ -60,4 +60,63 @@ echo $?
 ```
 
 # check_lvs_virtualips
-another test
+check_lvs_virtualips plugin for Nagios / Icinga. Warns if the host is missing any virtual_ips known to LVS. If the host does not own the specified address (-g), the test is inverted i.e. we warn if the host *does* own any virtual_ip known to LVS. Intended or use with LVS managers like ipvsadm and Keepalived.
+
+## Dependencies
+* bash 4.2.46 or newer
+* ipvsadm
+* iproute
+* coreutils
+* grep
+
+## Installation
+1. Copy the script to /usr/local/sbin/check_lvs_virtualips
+1. Use chown and chmod to ensure the test user can execute it.
+1. Give the test user sudo access:
+```
+visudo 
+```
+```
+icinga ALL=(root) NOPASSWD: /usr/local/sbin/check_lvs_virtualips
+``` 
+
+## Usage
+```
+check_lvs_virtualips -g <gateway ip> [-s]
+-g:	Gateway IP address (required).
+-h:	This help.
+```
+
+### Example output
+```
+sudo /usr/local/sbin/check_lvs_virtualips -g 192.168.0.1
+OK: I own the gateway and 3 of 3 virtual_ip are active: 192.168.10.10 192.168.10.20 192.168.10.30
+
+echo $?
+0
+```
+
+```
+sudo /usr/local/sbin/check_lvs_virtualips -g 192.168.0.1
+OK: I don't own the gateway and 0 virtual_ip are active.
+
+echo $?
+0
+```
+
+```
+sudo /usr/local/sbin/check_lvs_virtualips -g 192.168.0.1
+WARN: I own the gateway and 2 of 3 virtual_ip are active: 192.168.10.10 192.168.10.20
+
+echo $?
+1
+
+```
+
+```
+sudo /usr/local/sbin/check_lvs_virtualips -g 192.168.0.1
+WARN: I don't own the gateway and 1 pf 3 virtual_ip are active: 192.168.10.10
+
+echo $?
+1
+```

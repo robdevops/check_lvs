@@ -47,9 +47,7 @@ LVS_VIRTUAL_IP=( $( ipvsadm -L -n | grep ^[TU] | grep -woEs "([0-9]{1,3}\.){3}[0
 
 
 # Scrape live IP addresses from network interfaces
-set +e
 IP_NIC=( $( ip -o -4 a | awk '{print $4}' | grep -woEs "([0-9]{1,3}\.){3}[0-9]{1,3}" ) )
-set -e
 
 
 # Check if live addresses are known to LVS and/or specified on the command line.

@@ -12,9 +12,6 @@ error() {
     exit 3
 }
 
-[[ ! -x $( which ip ) ]] && error "\"ip\" command not found in PATH. Install iproute."
-[[ ! -x $( which ipvsadm ) ]] && error "ipvsadm not found in PATH. Install ipvsadm and run as root."
-
 usage() {
 printf "Description: $ME warns if the host is missing any virtual_ips known to LVS.
 If the host does not own the specified address (-g), the test is inverted i.e. we warn if the host *does* own any virtual_ip known to LVS.
@@ -39,6 +36,9 @@ while getopts ":hsg:" opt; do
 done
 
 [[ -v GATEWAY_IP ]] || usage
+[[ ! -x $( which ip ) ]] && error "\"ip\" command not found in PATH. Install iproute."
+[[ ! -x $( which ipvsadm ) ]] && error "ipvsadm not found in PATH. Install ipvsadm and run as root."
+
 
 
 ################## MAIN ###########################

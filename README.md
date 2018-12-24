@@ -146,14 +146,12 @@ Warns if the host does not own the specified ipv4 address. If `-s` is specified,
 /usr/local/bin/check_ipv4_failover -a 192.168.0.1
 OK: I am the primary for 192.168.0.1.
 
-
 echo $?
 0
 ```
 ```
 /usr/local/bin/check_ipv4_failover -a 192.168.0.1 -s
 OK: I am the standby for 192.168.0.1.
-
 
 echo $?
 0

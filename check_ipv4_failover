@@ -1,0 +1,87 @@
+#!/bin/bash
+set -euo pipefail
+
+#################### INPUT AND ERROR HANDLING ########################
+ME="$( basename $0 )"
+MATCH=0
+STANDBY=0
+VIRTUAL_IP=
+
+error() {
+    printf "${@}\n" >&2
+    exit 3
+}
+
+[[ ! -x $( which ip ) ]] && error "\"ip\" command not found in PATH. Install iproute."
+
+usage() {
+printf "Description: $ME warns if the host does not own the specified ipv4 address. 
+If [-s] is specified, we treat this host as a standby, and warn if the host *does* own the address. 
+
+Usage:\t$ME -a <IPv4 address> [-s]
+-a:\tIPv4 address (required).
+-s:\tThis host is a standby.
+-h:\tThis help.
+
+Usage example: $ME -a 192.168.0.1 -s\n" >&2
+    exit 3
+
+}
+
+while getopts ":hsa:" opt; do
+    case $opt in
+      a  ) IFS=';' read -r -a VIRTUAL_IP <<< "$OPTARG" ;;
+      s  ) STANDBY=1 ;;
+      :  ) error "Option -$OPTARG requires an argument." ;;
+      \? ) error "Invalid option: -$OPTARG" ;;
+      h  ) usage ;;
+      *  ) usage ;;
+    esac
+done
+
+[[ -n "$VIRTUAL_IP" ]] || usage
+
+
+#################### MAIN ############################################
+# Scrape IPs from network interfaces
+set +e
+IP_ON_NIC=( $( ip -4 a | awk '{print $2}' | grep -woEs "([0-9]{1,3}\.){3}[0-9]{1,3}" ) )
+set -e
+
+for IP_HAVE in "${IP_ON_NIC[@]}"; do 
+    if [[ "$IP_HAVE" == "$VIRTUAL_IP" ]]; then
+            MATCH=1
+    fi
+
+done
+
+
+#################### OUTPUT ##########################################
+if [[ $MATCH -eq 1 ]]; then
+    if [[ $STANDBY -eq 0 ]]; then
+        echo "OK: I am the primary for ${VIRTUAL_IP}."
+        exit 0
+
+    else
+        echo "WARN: I have taken over ${VIRTUAL_IP}. Ensure the primary has released it."
+        exit 1
+
+    fi 
+
+elif [[ $MATCH -eq 0 ]]; then
+    if [[ $STANDBY -eq 1 ]]; then
+        echo "OK: I am the standby for ${VIRTUAL_IP}."
+        exit 0
+
+    else
+        echo "WARN: ${VIRTUAL_IP} is in failover. Ensure the secondary has taken over."
+        exit 1
+
+    fi 
+
+else
+    echo "UNKNOWN state"
+    exit 3
+
+fi
+

@@ -95,7 +95,6 @@ OK: I own the gateway and 3 of 3 virtual_ip are active: 192.168.10.10 192.168.10
 echo $?
 0
 ```
-
 ```
 sudo /usr/local/sbin/check_lvs_virtualips -g 192.168.0.1
 OK: I don't own the gateway and 0 virtual_ip are active.
@@ -103,16 +102,13 @@ OK: I don't own the gateway and 0 virtual_ip are active.
 echo $?
 0
 ```
-
 ```
 sudo /usr/local/sbin/check_lvs_virtualips -g 192.168.0.1
 WARN: I own the gateway and 2 of 3 virtual_ip are active: 192.168.10.10 192.168.10.20
 
 echo $?
 1
-
 ```
-
 ```
 sudo /usr/local/sbin/check_lvs_virtualips -g 192.168.0.1
 WARN: I don't own the gateway and 1 of 3 virtual_ip are active: 192.168.10.10

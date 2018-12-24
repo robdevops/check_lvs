@@ -1,0 +1,103 @@
+#!/bin/bash
+set -euo pipefail
+IP_MATCH=()
+I_AM_GATEWAY=
+
+
+#################### INPUT AND ERROR HANDLING ########################
+ME="$( basename $0 )"
+
+error() {
+    printf "${@}\n" >&2
+    exit 3
+}
+
+[[ ! -x $( which ip ) ]] && error "\"ip\" command not found in PATH. Install iproute."
+[[ ! -x $( which ipvsadm ) ]] && error "ipvsadm not found in PATH. Install ipvsadm and run as root."
+
+usage() {
+printf "Description: $ME warns if the host is missing any virtual_ips known to LVS.
+If the host does not own the specified address (-g), the test is inverted i.e. we warn if the host *does* own any virtual_ip known to LVS.
+
+Usage:\t$ME -g <gateway ip>
+-g:\tGateway IP address (required).
+-h:\tThis help.
+
+Usage example: $ME -g 192.168.0.1\n" >&2
+    exit 3
+
+}
+
+while getopts ":hsg:" opt; do
+    case $opt in
+      g  ) IFS=';' read -r -a GATEWAY_IP <<< "$OPTARG" ;;
+      :  ) error "Option -$OPTARG requires an argument." ;;
+      \? ) error "Invalid option: -$OPTARG" ;;
+      h  ) usage ;;
+      *  ) usage ;;
+    esac
+done
+
+[[ -v GATEWAY_IP ]] || usage
+
+
+################## MAIN ###########################
+# Scrape virtual_ips known to LVS. filter out real_servers.
+LVS_VIRTUAL_IP=( $( ipvsadm -L -n | grep ^[TU] | grep -woEs "([0-9]{1,3}\.){3}[0-9]{1,3}" | sort -u ) )
+
+
+# Scrape live IP addresses from network interfaces
+set +e
+IP_NIC=( $( ip -o -4 a | awk '{print $4}' | grep -woEs "([0-9]{1,3}\.){3}[0-9]{1,3}" ) )
+set -e
+
+
+# Check if live addresses are known to LVS and/or specified on the command line.
+for IP_HAVE in "${IP_NIC[@]}"; do 
+    if [[ "$IP_HAVE" == "$GATEWAY_IP" ]]; then
+            I_AM_GATEWAY=1
+    fi
+    for IP_LVS in "${LVS_VIRTUAL_IP[@]}"; do
+        if [[ "$IP_LVS" == "$IP_HAVE" ]]; then
+            IP_MATCH+=( "$IP_LVS" )
+
+        fi
+
+    done
+
+done
+
+
+################## OUTPUT #########################
+if [[ ! ${#LVS_VIRTUAL_IP[@]} -gt 0 ]]; then
+    echo "UNKNOWN: No virtual_ip configured?"
+    exit 3
+
+elif [[ ${#IP_MATCH[@]} -eq ${#LVS_VIRTUAL_IP[@]} ]]; then
+    if [[ $I_AM_GATEWAY -eq 1 ]]; then
+        echo "OK: I own the gateway and ${#IP_MATCH[@]} of ${#LVS_VIRTUAL_IP[@]} virtual_ip are active: ${IP_MATCH[@]}" 
+        exit 0
+
+    else
+        echo "WARN: I don't own the gateway and ${#IP_MATCH[@]} virtual_ip are active: ${IP_MATCH[@]}" 
+        exit 1
+
+    fi
+
+elif [[ ${#IP_MATCH[@]} -ne ${#LVS_VIRTUAL_IP[@]} ]]; then
+    if [[ $I_AM_GATEWAY -eq 1 ]]; then
+        echo "WARN: I own the gateway and ${#IP_MATCH[@]} of ${#LVS_VIRTUAL_IP[@]} virtual_ip are active: ${IP_MATCH[@]}"
+        exit 1
+
+    else
+        echo "OK: I don't own the gateway and 0 virtual_ip are active." 
+        exit 0
+
+    fi
+
+else
+    echo "UNKNOWN state"
+    exit 3
+
+fi
+

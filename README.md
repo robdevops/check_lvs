@@ -131,7 +131,7 @@ check_ipv4_failover plugin for Nagios / Icinga. Warns if the host does not own t
 
 ## Installation
 1. Copy the script to /usr/local/bin/check_ipv4_failover
-1. Use chown and chmod to ensure the test user can execute it.
+1. Use `chown` and `chmod` to ensure the test user can execute it.
 
 
 ## Usage

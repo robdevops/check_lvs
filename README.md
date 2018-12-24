@@ -143,7 +143,7 @@ Warns if the host does not own the specified ipv4 address. If `-s` is specified,
 
 ### Example output
 ```
-/usr/local/bin/check_ipv4_failover  -a 192.168.0.1
+/usr/local/bin/check_ipv4_failover -a 192.168.0.1
 OK: I am the primary for 192.168.10.1.
 
 

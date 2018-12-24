@@ -24,7 +24,7 @@ Usage:\t$ME -v <vip:port> [-t|-u] [-w <number>] [-c <number>]
 -c:\tCritical threshold for number of real servers (Defaults to 0).
 -h:\tThis help.
 
-Usage example: $ME -v 192.168.0.80:80 -t -w1 -c0\n\n" >&2
+Usage example: $ME -v 192.168.8.8:80 -t -w1 -c0\n\n" >&2
     exit 3
 }
 

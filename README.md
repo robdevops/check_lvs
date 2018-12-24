@@ -4,7 +4,7 @@
 
 
 # check_lvs_pool
-check_lvs_pool plugin for Nagios / Icinga. Checks the number of available real servers for a specified IPVS virtual server. Intended or use with LVS managers like ipvsadm and Keepalived.
+check_lvs_pool plugin for Nagios / Icinga. Checks the number of available real servers for a specified IPVS virtual server. Intended for use with LVS managers like ipvsadm and Keepalived.
 
 ## Dependencies
 * bash 4.2.46 or newer
@@ -60,7 +60,7 @@ echo $?
 ```
 
 # check_lvs_virtualips
-check_lvs_virtualips plugin for Nagios / Icinga. Warns if the host is missing any virtual_ips known to LVS. If the host does not own the specified address (-g), the test is inverted i.e. we warn if the host *does* own any virtual_ip known to LVS. Intended or use with LVS managers like ipvsadm and Keepalived.
+check_lvs_virtualips plugin for Nagios / Icinga. Warns if the host is missing any virtual_ips known to LVS. If the host does not own the specified address (-g), the test is inverted i.e. we warn if the host *does* own any virtual_ip known to LVS. Intended for use with LVS managers like ipvsadm and Keepalived.
 
 ## Dependencies
 * bash 4.2.46 or newer

@@ -61,7 +61,7 @@ echo $?
 ```
 
 # check_lvs_virtualips
-check_lvs_virtualips plugin for Nagios / Icinga. Warns if the host is missing any virtual_ip known to LVS. If the host does not own the specified address (-g), the test is inverted i.e. we warn if the host *does* own any virtual_ip known to LVS. Intended for use with LVS managers like ipvsadm and Keepalived.
+check_lvs_virtualips plugin for Nagios / Icinga. Warns if the host is missing any virtual_ip known to LVS. If the host does not own the specified address (`-g`), the test is inverted i.e. we warn if the host *does* own any virtual_ip known to LVS. Intended for use with LVS managers like ipvsadm and Keepalived.
 
 ## Dependencies
 * bash 4.2.46 or newer
@@ -151,16 +151,16 @@ echo $?
 0
 ```
 ```
-/usr/local/bin/check_ipv4_failover -a 192.168.0.1
-WARN: 192.168.0.1 is in failover. Ensure the secondary has taken over.
-
-echo $?
-1
-```
-```
 /usr/local/bin/check_ipv4_failover -a 192.168.0.1 -s
 OK: I am the standby for 192.168.0.1.
 
+
+echo $?
+0
+```
+```
+/usr/local/bin/check_ipv4_failover -a 192.168.0.1
+WARN: 192.168.0.1 is in failover. Ensure the secondary has taken over.
 
 echo $?
 1

@@ -120,7 +120,7 @@ echo $?
 ```
 
 # check_ipv4_failover
-check_ipv4_failover plugin for Nagios / Icinga. check_ipv4_failover warns if the host does not own the specified ipv4 address. If [-s] is specified, we treat this host as a standby, and warn if the host *does* own the address. Intended for use with LVS managers like ipvsadm and Keepalived.
+check_ipv4_failover plugin for Nagios / Icinga. Warns if the host does not own the specified ipv4 address. If `-s` is specified, we treat this host as a standby, and warn if the host *does* own the address. Intended for use with LVS managers like ipvsadm and Keepalived.
 
 ## Dependencies
 * bash

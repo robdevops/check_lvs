@@ -82,7 +82,7 @@ icinga ALL=(root) NOPASSWD: /usr/local/sbin/check_lvs_virtualips
 
 ## Usage
 ```
-check_lvs_virtualips -g <gateway ip> [-s]
+check_lvs_virtualips -g <gateway ip>
 -g:	Gateway IP address (required).
 -h:	This help.
 ```

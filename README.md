@@ -33,26 +33,26 @@ check_lvs_pool -v <vip:port> [-t|-u] [-w <number>] [-c <number>]
 -c:     Critical threshold for number of real servers (Defaults to 0).
 -h:     This help.
 
-Usage example: check_lvs_pool -v 192.168.0.1:80 -t -w1 -c0
+Usage example: check_lvs_pool -v 192.168.0.80:80 -t -w1 -c0
 ```
 
 ### Example output
 ```
-sudo /usr/local/sbin/check_lvs_pool -v 192.168.0.1:80 -t -w1 -c0
+sudo /usr/local/sbin/check_lvs_pool -v 192.168.0.80:80 -t -w1 -c0
 OK: 2 up.
 
 echo $?
 0
 ```
 ```
-sudo /usr/local/sbin/check_lvs_pool -v 192.168.0.1:80 -t -w2 -c0
+sudo /usr/local/sbin/check_lvs_pool -v 192.168.0.80:80 -t -w2 -c0
 WARNING: 2 up.
 
 echo $?
 1
 ```
 ```
-sudo /usr/local/sbin/check_lvs_pool -v 192.168.0.1:80 -t -w1 -c2
+sudo /usr/local/sbin/check_lvs_pool -v 192.168.0.80:80 -t -w1 -c2
 CRITICAL: 2 up.
 
 echo $?
@@ -115,7 +115,7 @@ echo $?
 
 ```
 sudo /usr/local/sbin/check_lvs_virtualips -g 192.168.0.1
-WARN: I don't own the gateway and 1 pf 3 virtual_ip are active: 192.168.10.10
+WARN: I don't own the gateway and 1 of 3 virtual_ip are active: 192.168.10.10
 
 echo $?
 1

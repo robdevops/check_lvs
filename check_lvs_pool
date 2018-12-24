@@ -2,7 +2,6 @@
 set -euo pipefail
 
 #################### INPUT AND ERROR HANDLING ########################
-
 WARN=1
 CRIT=0
 PROTO='-t'
@@ -15,7 +14,7 @@ error() {
 }
 
 usage() {
-    printf "Description:\t$ME checks the number of available real servers for a specified IPVS virtual server.
+    printf "Description:\t$ME checks the number of available real servers for a specified LVS virtual server.
 
 Usage:\t$ME -v <vip:port> [-t|-u] [-w <number>] [-c <number>]
 -v:\tIPv4 address and port of virtual server (Required).
@@ -25,7 +24,7 @@ Usage:\t$ME -v <vip:port> [-t|-u] [-w <number>] [-c <number>]
 -c:\tCritical threshold for number of real servers (Defaults to 0).
 -h:\tThis help.
 
-Usage example: $ME -v 192.168.0.1:80 -t -w1 -c0\n\n" >&2
+Usage example: $ME -v 192.168.0.80:80 -t -w1 -c0\n\n" >&2
     exit 3
 }
 
@@ -37,7 +36,6 @@ scrape_ipv4_and_port() {
 
 }
 
-[[ ! -x $( which ipvsadm ) ]] && error "ipvsadm not found in PATH. Install ipvsadm and run as root."
 
 while getopts ":htuv:w:c:" opt; do
     case $opt in
@@ -53,11 +51,12 @@ while getopts ":htuv:w:c:" opt; do
     esac
 done
 
-[[ ! -v VIRTUAL_SERVER ]] && usage
+[[ -v VIRTUAL_SERVER ]] || usage
+[[ -x $( which ipvsadm ) ]] || error "ipvsadm not found in PATH. Install ipvsadm and run as root."
 scrape_ipv4_and_port $VIRTUAL_SERVER > /dev/null || error "Bad IPv4 address or port: $VIRTUAL_SERVER" 
 
-################## MAIN ###########################
 
+################## MAIN ###########################
 IPVSADM_OUTPUT=$( ipvsadm -L -n $PROTO $VIRTUAL_SERVER 2> /dev/null | tail -n +4 ) || error "Virtual server $VIRTUAL_SERVER/$PROTO_HUMAN not found."
 REAL_SERVERS=( $( scrape_ipv4_and_port $IPVSADM_OUTPUT ) ) 
 REAL_SERVER_COUNT=${#REAL_SERVERS[@]}

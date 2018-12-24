@@ -14,9 +14,9 @@ check_lvs_pool plugin for Nagios / Icinga. Checks the number of available real s
 * grep
 
 ## Installation
-1. Copy the script to /usr/local/sbin/check_lvs_pool
-1. Use chown and chmod to ensure the test user can execute it.
-1. Give the test user sudo access:
+1. Copy the script to `/usr/local/sbin/check_lvs_pool`
+1. Use `chown` and `chmod` to ensure the test user can execute it.
+1. Give the test user `sudo` access:
 ```
 visudo 
 ```
@@ -72,9 +72,9 @@ check_lvs_virtualips plugin for Nagios / Icinga. Warns if the host is missing an
 * awk
 
 ## Installation
-1. Copy the script to /usr/local/sbin/check_lvs_virtualips
-1. Use chown and chmod to ensure the test user can execute it.
-1. Give the test user sudo access:
+1. Copy the script to `/usr/local/sbin/check_lvs_virtualips`
+1. Use `chown` and `chmod` to ensure the test user can execute it.
+1. Give the test user `sudo` access:
 ```
 visudo 
 ```

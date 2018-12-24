@@ -167,7 +167,7 @@ echo $?
 ```
 ```
 /usr/local/bin/check_ipv4_failover -a 192.168.0.1 -s
-WARN: I have taken over 192.168.158.141. Ensure the primary has released it.
+WARN: I have taken over 192.168.0.1. Ensure the primary has released it.
 
 echo $?
 1

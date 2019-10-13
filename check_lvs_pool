@@ -9,12 +9,12 @@ PROTO_HUMAN=tcp
 ME="$( basename $0 )"
 
 error() {
-    printf "${@}\n" >&2
-    exit 3
+	printf "${@}\n" >&2
+	exit 3
 }
 
 usage() {
-    printf "Description:\t$ME checks the number of available real servers for a specified LVS virtual server.
+	printf "Description:\t$ME checks the number of available real servers for a specified LVS virtual server.
 
 Usage:\t$ME -v <vip:port> [-t|-u] [-w <number>] [-c <number>]
 -v:\tIPv4 address and port of virtual server (Required).
@@ -25,7 +25,7 @@ Usage:\t$ME -v <vip:port> [-t|-u] [-w <number>] [-c <number>]
 -h:\tThis help.
 
 Usage example: $ME -v 192.168.8.8:80 -t -w1 -c0\n\n" >&2
-    exit 3
+	exit 3
 }
 
 scrape_ipv4_and_port() {
@@ -38,48 +38,55 @@ scrape_ipv4_and_port() {
 
 
 while getopts ":htuv:w:c:" opt; do
-    case $opt in
-      t  ) PROTO='-t'; PROTO_HUMAN=tcp ;;
-      u  ) PROTO='-u'; PROTO_HUMAN=udp ;;
-      v  ) VIRTUAL_SERVER=$OPTARG ;;
-      w  ) WARN=$OPTARG ;;
-      c  ) CRIT=$OPTARG ;;
-      \? ) error "Invalid option: -$OPTARG" ;;
-      h  ) usage ;;
-      *  ) usage ;;
-      :  ) error "Option -$OPTARG requires an argument." ;;
-    esac
+	case $opt in
+	  t  ) PROTO='-t'; PROTO_HUMAN=tcp ;;
+	  u  ) PROTO='-u'; PROTO_HUMAN=udp ;;
+	  v  ) VIRTUAL_SERVER=$OPTARG ;;
+	  w  ) WARN=$OPTARG ;;
+	  c  ) CRIT=$OPTARG ;;
+	  \? ) error "Invalid option: -$OPTARG" ;;
+	  h  ) usage ;;
+	  *  ) usage ;;
+	  :  ) error "Option -$OPTARG requires an argument." ;;
+	esac
 done
 
 [[ -v VIRTUAL_SERVER ]] || usage
 [[ -x $( which ipvsadm ) ]] || error "ipvsadm not found in PATH. Install ipvsadm and run as root."
-scrape_ipv4_and_port $VIRTUAL_SERVER > /dev/null || error "Bad IPv4 address or port: $VIRTUAL_SERVER" 
+scrape_ipv4_and_port $VIRTUAL_SERVER > /dev/null || error "Bad IPv4 address or port: $VIRTUAL_SERVER"
 
+join_by() {
+  local d=$1
+  shift
+  echo -n "$1"
+  shift
+  printf "%s" "${@/#/$d}"
+
+}
 
 ################## MAIN ###########################
-IPVSADM_OUTPUT=$( ipvsadm -L -n $PROTO $VIRTUAL_SERVER 2> /dev/null | tail -n +4 ) || error "Virtual server $VIRTUAL_SERVER/$PROTO_HUMAN not found."
-REAL_SERVERS=( $( scrape_ipv4_and_port $IPVSADM_OUTPUT ) ) 
+IPVSADM_OUTPUT=$( ipvsadm -L $PROTO $VIRTUAL_SERVER 2> /dev/null | tail -n +4 ) || error "Virtual server $VIRTUAL_SERVER/$PROTO_HUMAN not found."
+REAL_SERVERS=( $( awk -F" |:" '{print $4}' <(echo "$IPVSADM_OUTPUT") ) )
 REAL_SERVER_COUNT=${#REAL_SERVERS[@]}
 
 if [[ $REAL_SERVER_COUNT -eq 0 ]]; then
-    echo "CRITICAL: virtual_server \"$VIRTUAL_SERVER\" has 0 real_server available!"
-    exit 2
-        
+	echo "CRITICAL OUTAGE: virtual :server \"$VIRTUAL_SERVER\" has no online members!"
+	exit 2
+
 elif [[ $REAL_SERVER_COUNT -le $CRIT ]]; then
-    echo "CRITICAL: virtual_server \"$VIRTUAL_SERVER\" has $REAL_SERVER_COUNT real_server available: ${REAL_SERVERS[@]}"
-    exit 2
+	echo "CRITICAL: virtual server \"$VIRTUAL_SERVER\" has only $REAL_SERVER_COUNT members online ($( join_by ', ' ${REAL_SERVERS[@]} ))"
+	exit 2
 
 elif [[ $REAL_SERVER_COUNT -le $WARN ]]; then
-    echo "WARNING: virtual_server \"$VIRTUAL_SERVER\" has $REAL_SERVER_COUNT real_server available: ${REAL_SERVERS[@]}"
-    exit 1
+	echo "WARNING: virtual server \"$VIRTUAL_SERVER\" has only $REAL_SERVER_COUNT members online ($( join_by ', ' ${REAL_SERVERS[@]} ))"
+	exit 1
 
 elif [[ $REAL_SERVER_COUNT -gt $WARN ]]; then
-    echo "OK: virtual_server \"$VIRTUAL_SERVER\" has $REAL_SERVER_COUNT real_server available: ${REAL_SERVERS[@]}"
-    exit 0
-
+	echo "OK: virtual server \"$VIRTUAL_SERVER\" has $REAL_SERVER_COUNT members online ($( join_by ', ' ${REAL_SERVERS[@]} ))"
+	exit 0
 else
-    error "Problem running test."
-    exit 3
+	error "Problem running test."
+	exit 3
 
 fi
 

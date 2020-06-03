@@ -6,7 +6,7 @@ WARN=1
 CRIT=0
 PROTO='-t'
 PROTO_HUMAN=tcp
-ME="$( basename $0 )"
+ME="${0##*/}"
 
 error() {
 	printf "${@}\n" >&2

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 #################### INPUT AND ERROR HANDLING ########################
-ME="$( basename $0 )"
+ME="${0##*/}"
 MATCH=0
 STANDBY=0
 VIRTUAL_IP=

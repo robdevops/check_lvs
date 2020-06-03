@@ -5,7 +5,7 @@ I_AM_GATEWAY=
 
 
 #################### INPUT AND ERROR HANDLING ########################
-ME="$( basename $0 )"
+ME="${0##*/}"
 
 error() {
     printf "${@}\n" >&2
